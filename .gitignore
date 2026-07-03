@@ -1,0 +1,32 @@
+# --- secrets ---
+.env
+*.env
+!.env.example
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# --- .NET ---
+bin/
+obj/
+*.user
+
+# --- data outputs (generated, not source) ---
+# sample_data/pdfs and sample_data/ground_truth ARE committed (synthetic, deterministic,
+# needed so reviewers don't have to run generate.py themselves) — do not ignore them.
+eval/results/
+*.parquet
+!sample_data/**/*.parquet
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
