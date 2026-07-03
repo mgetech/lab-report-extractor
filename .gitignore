@@ -12,6 +12,9 @@ venv/
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
 
 # --- .NET ---
 bin/
