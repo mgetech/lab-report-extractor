@@ -1,0 +1,17 @@
+[project]
+name = "lab-report-extractor"
+version = "0.1.0"
+description = "Python extraction engine: DI -> LLM -> validated structured JSON"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "pydantic>=2.9",
+    "azure-ai-documentintelligence==1.0.2",
+    "openai==2.44.0",
+    "python-dotenv>=1.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
