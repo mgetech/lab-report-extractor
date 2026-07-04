@@ -11,7 +11,7 @@ from enum import StrEnum
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class Gender(StrEnum):
+class Sex(StrEnum):
     MALE = "M"
     FEMALE = "F"
     OTHER = "O"
@@ -34,7 +34,7 @@ class Patient(BaseModel):
     patient_id: str
     name: str
     dob: date | None = None
-    gender: Gender | None = None
+    sex: Sex | None = None
 
 
 class Diagnosis(BaseModel):

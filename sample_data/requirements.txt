@@ -1,0 +1,5 @@
+# Deps for sample_data/generate.py only (synthetic PDF + ground-truth generation).
+# Not part of the extractor service runtime (see src/extractor/pyproject.toml) —
+# install separately: pip install -r sample_data/requirements.txt
+reportlab>=4.2,<5
+Pillow>=10.4,<11

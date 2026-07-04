@@ -1,0 +1,84 @@
+{
+  "source_file": "doc02_rows_clean.pdf",
+  "extraction_model": "ground_truth",
+  "extracted_at": "2026-07-04T09:00:00",
+  "report_date": "2026-06-22",
+  "collection_date": "2026-06-21",
+  "ordering_physician": "Dr. Owen Faulkner",
+  "lab_name": "Brightpath Diagnostics",
+  "needs_review": false,
+  "patient": {
+    "patient_id": "P-1002",
+    "name": "Casey Nakamura-Reyes",
+    "dob": "1978-11-02",
+    "sex": "M"
+  },
+  "results": [
+    {
+      "analyte": "Sodium",
+      "value": "140",
+      "unit": "mmol/L",
+      "ref_range_raw": "136-145",
+      "ref_low": 136.0,
+      "ref_high": 145.0,
+      "printed_flag": "N",
+      "computed_flag": "N",
+      "confidence": 1.0,
+      "needs_review": false
+    },
+    {
+      "analyte": "Potassium",
+      "value": "4.2",
+      "unit": "mmol/L",
+      "ref_range_raw": "3.5-5.1",
+      "ref_low": 3.5,
+      "ref_high": 5.1,
+      "printed_flag": "N",
+      "computed_flag": "N",
+      "confidence": 1.0,
+      "needs_review": false
+    },
+    {
+      "analyte": "Glucose",
+      "value": "6.6",
+      "unit": "mmol/L",
+      "ref_range_raw": "3.9-5.6",
+      "ref_low": 3.9,
+      "ref_high": 5.6,
+      "printed_flag": "H",
+      "computed_flag": "H",
+      "confidence": 1.0,
+      "needs_review": false
+    },
+    {
+      "analyte": "Alanine Aminotransferase",
+      "value": "30",
+      "unit": "U/L",
+      "ref_range_raw": "7-56",
+      "ref_low": 7.0,
+      "ref_high": 56.0,
+      "printed_flag": "N",
+      "computed_flag": "N",
+      "confidence": 1.0,
+      "needs_review": false
+    },
+    {
+      "analyte": "Thyroid Stimulating Hormone",
+      "value": "2.1",
+      "unit": "mIU/L",
+      "ref_range_raw": "0.4-4",
+      "ref_low": 0.4,
+      "ref_high": 4.0,
+      "printed_flag": "N",
+      "computed_flag": "N",
+      "confidence": 1.0,
+      "needs_review": false
+    }
+  ],
+  "diagnoses": [
+    {
+      "text": "Follow-up visit for hyperglycemia management; results improving.",
+      "confidence": 1.0
+    }
+  ]
+}

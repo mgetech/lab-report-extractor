@@ -2,8 +2,7 @@ from datetime import date, datetime
 
 import pytest
 from pydantic import ValidationError
-
-from schema import Diagnosis, Flag, Gender, LabReport, Patient, Result
+from schema import Diagnosis, Flag, LabReport, Patient, Result, Sex
 
 
 def _sample_report() -> LabReport:
@@ -15,7 +14,7 @@ def _sample_report() -> LabReport:
         collection_date=date(2026, 7, 2),
         ordering_physician="Dr. Smith",
         lab_name="Acme Labs",
-        patient=Patient(patient_id="P-001", name="Jane Doe", dob=date(1990, 1, 1), gender=Gender.FEMALE),
+        patient=Patient(patient_id="P-001", name="Jane Doe", dob=date(1990, 1, 1), sex=Sex.FEMALE),
         results=[
             Result(
                 analyte="Hemoglobin",

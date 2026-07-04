@@ -1,0 +1,72 @@
+{
+  "source_file": "doc04_panels_clean.pdf",
+  "extraction_model": "ground_truth",
+  "extracted_at": "2026-07-04T09:00:00",
+  "report_date": "2026-06-25",
+  "collection_date": "2026-06-24",
+  "ordering_physician": "Dr. Sana Okafor",
+  "lab_name": "Meridian Health Labs",
+  "needs_review": false,
+  "patient": {
+    "patient_id": "P-1004",
+    "name": "Avery Kowalczyk",
+    "dob": "1966-01-30",
+    "sex": "M"
+  },
+  "results": [
+    {
+      "analyte": "Thyroid Stimulating Hormone",
+      "value": "6.5",
+      "unit": "mIU/L",
+      "ref_range_raw": "0.4-4",
+      "ref_low": 0.4,
+      "ref_high": 4.0,
+      "printed_flag": "HH",
+      "computed_flag": "HH",
+      "confidence": 1.0,
+      "needs_review": false
+    },
+    {
+      "analyte": "Alanine Aminotransferase",
+      "value": "30",
+      "unit": "U/L",
+      "ref_range_raw": "7-56",
+      "ref_low": 7.0,
+      "ref_high": 56.0,
+      "printed_flag": "N",
+      "computed_flag": "N",
+      "confidence": 1.0,
+      "needs_review": false
+    },
+    {
+      "analyte": "Hemoglobin",
+      "value": "142",
+      "unit": "g/L",
+      "ref_range_raw": "135-175",
+      "ref_low": 135.0,
+      "ref_high": 175.0,
+      "printed_flag": "N",
+      "computed_flag": "N",
+      "confidence": 1.0,
+      "needs_review": false
+    },
+    {
+      "analyte": "White Blood Cell Count",
+      "value": "7.5",
+      "unit": "x10^9/L",
+      "ref_range_raw": "4-11",
+      "ref_low": 4.0,
+      "ref_high": 11.0,
+      "printed_flag": "N",
+      "computed_flag": "N",
+      "confidence": 1.0,
+      "needs_review": false
+    }
+  ],
+  "diagnoses": [
+    {
+      "text": "Thyroid function follow-up; mild subclinical hypothyroidism suspected.",
+      "confidence": 1.0
+    }
+  ]
+}
