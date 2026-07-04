@@ -25,6 +25,7 @@ obj/
 # sample_data/pdfs and sample_data/ground_truth ARE committed (synthetic, deterministic,
 # needed so reviewers don't have to run generate.py themselves) — do not ignore them.
 eval/results/
+output/
 *.parquet
 !sample_data/**/*.parquet
 

@@ -1,0 +1,72 @@
+{
+  "source_file": "doc08_panels_scanned.pdf",
+  "extraction_model": "ground_truth",
+  "extracted_at": "2026-07-04T09:00:00",
+  "report_date": "2026-07-01",
+  "collection_date": "2026-06-30",
+  "ordering_physician": "Dr. Sana Okafor",
+  "lab_name": "Brightpath Diagnostics",
+  "needs_review": false,
+  "patient": {
+    "patient_id": "P-1008",
+    "name": "Sasha Lindqvist",
+    "dob": "1973-06-11",
+    "sex": "M"
+  },
+  "results": [
+    {
+      "analyte": "Total Cholesterol",
+      "value": "5.95",
+      "unit": "mmol/L",
+      "ref_range_raw": "<5.2",
+      "ref_low": null,
+      "ref_high": 5.2,
+      "printed_flag": "H",
+      "computed_flag": "H",
+      "confidence": 1.0,
+      "needs_review": false
+    },
+    {
+      "analyte": "HDL Cholesterol",
+      "value": "1.42",
+      "unit": "mmol/L",
+      "ref_range_raw": ">1",
+      "ref_low": 1.0,
+      "ref_high": null,
+      "printed_flag": "N",
+      "computed_flag": "N",
+      "confidence": 1.0,
+      "needs_review": false
+    },
+    {
+      "analyte": "Glucose",
+      "value": "5.1",
+      "unit": "mmol/L",
+      "ref_range_raw": "3.9-5.6",
+      "ref_low": 3.9,
+      "ref_high": 5.6,
+      "printed_flag": "N",
+      "computed_flag": "N",
+      "confidence": 1.0,
+      "needs_review": false
+    },
+    {
+      "analyte": "Creatinine",
+      "value": "80",
+      "unit": "umol/L",
+      "ref_range_raw": "53-115",
+      "ref_low": 53.0,
+      "ref_high": 115.0,
+      "printed_flag": "N",
+      "computed_flag": "N",
+      "confidence": 1.0,
+      "needs_review": false
+    }
+  ],
+  "diagnoses": [
+    {
+      "text": "Lipid screening; total cholesterol elevated, lifestyle modification advised.",
+      "confidence": 1.0
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "source_file": "doc09_rows_adversarial.pdf",
+  "extraction_model": "ground_truth",
+  "extracted_at": "2026-07-04T09:00:00",
+  "report_date": "2026-07-02",
+  "collection_date": "2026-07-01",
+  "ordering_physician": null,
+  "lab_name": "Northgate Clinical Labs",
+  "needs_review": true,
+  "patient": {
+    "patient_id": "P-1009",
+    "name": "Corin Whitfield",
+    "dob": "1980-02-17",
+    "sex": "F"
+  },
+  "results": [
+    {
+      "analyte": "Hemoglobin",
+      "value": "14.2",
+      "unit": "g/dL",
+      "ref_range_raw": "13.5-17.5",
+      "ref_low": 13.5,
+      "ref_high": 17.5,
+      "printed_flag": "N",
+      "computed_flag": "N",
+      "confidence": 1.0,
+      "needs_review": false
+    },
+    {
+      "analyte": "Glucose",
+      "value": "145",
+      "unit": "mg/dL",
+      "ref_range_raw": "70-100",
+      "ref_low": 70.0,
+      "ref_high": 100.0,
+      "printed_flag": "N",
+      "computed_flag": "HH",
+      "confidence": 1.0,
+      "needs_review": true
+    },
+    {
+      "analyte": "Potassium",
+      "value": "6.8",
+      "unit": "mEq/L",
+      "ref_range_raw": "3.5-5.1",
+      "ref_low": 3.5,
+      "ref_high": 5.1,
+      "printed_flag": "HH",
+      "computed_flag": "HH",
+      "confidence": 1.0,
+      "needs_review": false
+    },
+    {
+      "analyte": "Alanine Aminotransferase",
+      "value": "30",
+      "unit": "U/L",
+      "ref_range_raw": "7-56",
+      "ref_low": 7.0,
+      "ref_high": 56.0,
+      "printed_flag": "N",
+      "computed_flag": "N",
+      "confidence": 1.0,
+      "needs_review": false
+    }
+  ],
+  "diagnoses": [
+    {
+      "text": "Acute presentation; critical hyperkalemia flagged for immediate clinician review. Glucose result requires manual verification against printed flag.",
+      "confidence": 1.0
+    }
+  ]
+}
