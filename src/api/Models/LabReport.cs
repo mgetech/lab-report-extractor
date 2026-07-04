@@ -50,9 +50,9 @@ public sealed record LabReport
 
     /// <summary>Extracted result rows.</summary>
     [JsonPropertyName("results")]
-    public IReadOnlyList<Result> Results { get; init; } = [];
+    public List<Result> Results { get; init; } = [];
 
     /// <summary>Extracted free-text diagnoses.</summary>
     [JsonPropertyName("diagnoses")]
-    public IReadOnlyList<Diagnosis> Diagnoses { get; init; } = [];
+    public List<Diagnosis> Diagnoses { get; init; } = [];
 }
