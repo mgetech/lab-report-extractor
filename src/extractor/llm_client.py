@@ -1,5 +1,5 @@
 """Azure OpenAI client: structures Document Intelligence layout output into the
-`LabReport` schema via structured outputs (Foundry `gpt-5-mini` deployment).
+`LabReport` schema via structured outputs.
 
 The prompt carries only DI's plain-text content and rendered tables -- never its
 per-word/line confidence payload, which is pure token bloat the LLM can't use to

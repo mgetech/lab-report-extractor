@@ -10,6 +10,7 @@ dependencies = [
     "azure-ai-documentintelligence==1.0.2",
     "openai==2.44.0",
     "python-dotenv>=1.0",
+    "python-multipart>=0.0.9",
 ]
 
 [project.optional-dependencies]
@@ -33,6 +34,9 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends"]
 
 [tool.pytest.ini_options]
 testpaths = ["../../tests/python"]
