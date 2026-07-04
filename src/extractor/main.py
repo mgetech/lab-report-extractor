@@ -19,6 +19,8 @@ from fastapi import Depends, FastAPI, HTTPException, UploadFile
 from di_client import DIClient, DocumentIntelligenceError
 from llm_client import LLMClient, LLMExtractionError
 from schema import LabReport
+from transform import transform_report
+from validate import validate_report
 
 load_dotenv()
 
@@ -65,7 +67,8 @@ async def extract(
     di_client: DIClient = Depends(get_di_client),
     llm_client: LLMClient = Depends(get_llm_client),
 ) -> LabReport:
-    """Document upload -> Azure DI layout -> Azure OpenAI structuring -> validated `LabReport`."""
+    """Document upload -> Azure DI layout -> Azure OpenAI structuring -> transform ->
+    validate -> validated `LabReport`."""
     document_bytes = await file.read()
 
     try:
@@ -79,6 +82,8 @@ async def extract(
     except LLMExtractionError as exc:
         logger.error("LLM extraction failed for %s: %s", file.filename, exc)
         raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    report = validate_report(transform_report(report))
 
     out_path = _persist_report(report)
     logger.info("Persisted extraction result to %s", out_path)
