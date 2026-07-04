@@ -11,6 +11,7 @@ dependencies = [
     "openai==2.44.0",
     "python-dotenv>=1.0",
     "python-multipart>=0.0.9",
+    "pyarrow>=17",
 ]
 
 [project.optional-dependencies]

@@ -38,7 +38,35 @@ def _client_with_stub_poller(mocker, poller_result=None, poller_error=None):
     stub_sdk_client = mocker.Mock()
     stub_sdk_client.begin_analyze_document.return_value = poller
     mocker.patch("di_client.DocumentIntelligenceClient", return_value=stub_sdk_client)
+    mocker.patch("di_client.DocumentIntelligenceAdministrationClient")
     return DIClient(endpoint="https://example.cognitiveservices.azure.com", api_key="fake-key"), stub_sdk_client
+
+
+def _client_with_stub_admin(mocker, admin_error=None):
+    stub_admin_client = mocker.Mock()
+    if admin_error is not None:
+        stub_admin_client.get_resource_details.side_effect = admin_error
+    mocker.patch("di_client.DocumentIntelligenceClient")
+    mocker.patch("di_client.DocumentIntelligenceAdministrationClient", return_value=stub_admin_client)
+    client = DIClient(endpoint="https://example.cognitiveservices.azure.com", api_key="fake-key")
+    return client, stub_admin_client
+
+
+def test_ping_succeeds_when_resource_details_reachable(mocker):
+    client, stub_admin_client = _client_with_stub_admin(mocker)
+
+    client.ping()
+
+    stub_admin_client.get_resource_details.assert_called_once()
+
+
+def test_ping_raises_document_intelligence_error_on_failure(mocker):
+    client, _ = _client_with_stub_admin(
+        mocker, admin_error=HttpResponseError(message="unauthorized")
+    )
+
+    with pytest.raises(DocumentIntelligenceError):
+        client.ping()
 
 
 def test_analyze_layout_extracts_text_tables_and_confidence(mocker):

@@ -42,3 +42,14 @@ def test_extract_against_real_document_intelligence_and_azure_openai():
     # doc01 prints Hemoglobin as the flagged (low) result -- a real signal the model
     # read the printed flag rather than defaulting everything to normal.
     assert any(r.printed_flag == Flag.LOW for r in report.results)
+
+
+@pytest.mark.integration
+def test_ping_against_real_azure_openai():
+    llm_endpoint = os.environ.get("AZURE_OPENAI_ENDPOINT")
+    llm_key = os.environ.get("AZURE_OPENAI_API_KEY")
+    deployment = os.environ.get("AZURE_OPENAI_DEPLOYMENT")
+    if not all([llm_endpoint, llm_key, deployment]):
+        pytest.skip("AZURE_OPENAI_* not set in .env")
+
+    LLMClient(endpoint=llm_endpoint, api_key=llm_key, deployment=deployment).ping()

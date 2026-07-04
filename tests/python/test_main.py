@@ -44,6 +44,38 @@ def test_health_returns_ok(client):
     assert response.json() == {"status": "ok"}
 
 
+def test_ready_returns_200_when_both_azure_services_reachable(client):
+    test_client, fake_di, fake_llm = client
+
+    response = test_client.get("/ready")
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ready"}
+    fake_di.ping.assert_called_once()
+    fake_llm.ping.assert_called_once()
+
+
+def test_ready_returns_503_when_document_intelligence_unreachable(client):
+    test_client, fake_di, fake_llm = client
+    fake_di.ping.side_effect = DocumentIntelligenceError("unauthorized")
+
+    response = test_client.get("/ready")
+
+    assert response.status_code == 503
+    assert "Document Intelligence" in response.json()["detail"]
+    fake_llm.ping.assert_not_called()
+
+
+def test_ready_returns_503_when_azure_openai_unreachable(client):
+    test_client, fake_di, fake_llm = client
+    fake_llm.ping.side_effect = LLMExtractionError("unauthorized")
+
+    response = test_client.get("/ready")
+
+    assert response.status_code == 503
+    assert "Azure OpenAI" in response.json()["detail"]
+
+
 def test_extract_returns_structured_report(client):
     test_client, fake_di, fake_llm = client
     fake_di.analyze_layout.return_value = "fake-layout"
@@ -73,6 +105,31 @@ def test_extract_persists_result_as_json_file(client):
     out_path = main.OUTPUT_DIR / "doc.json"
     assert out_path.exists()
     assert json.loads(out_path.read_text())["source_file"] == "doc.pdf"
+
+
+def test_extract_applies_transform_and_validate(client):
+    test_client, fake_di, fake_llm = client
+    fake_di.analyze_layout.return_value = "fake-layout"
+    fake_llm.extract.return_value = LabReport(
+        source_file="doc.pdf",
+        extraction_model="gpt-5-mini",
+        extracted_at=datetime(2026, 7, 4, 9, 0, 0),
+        patient=Patient(patient_id="P-1001", name="Jordan Ellery Voss"),
+        results=[
+            # "Hgb" is a synonym transform.py should canonicalize; low confidence should
+            # force needs_review even though nothing else is wrong with the result.
+            Result(analyte="Hgb", value="14.2", confidence=0.20, printed_flag=Flag.NORMAL)
+        ],
+    )
+
+    response = test_client.post(
+        "/extract", files={"file": ("doc.pdf", b"%PDF-fake-bytes", "application/pdf")}
+    )
+
+    body = response.json()
+    assert body["results"][0]["analyte"] == "Hemoglobin"
+    assert body["results"][0]["needs_review"] is True
+    assert body["needs_review"] is True
 
 
 def test_extract_returns_422_on_unreadable_document(client):

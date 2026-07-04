@@ -143,6 +143,18 @@ class LLMClient:
         self._client = OpenAI(base_url=endpoint, api_key=api_key)
         self._deployment = deployment
 
+    def ping(self) -> None:
+        """Cheap reachability check for `/ready`: lists available models rather than
+        running a real completion, so it spends no completion tokens.
+
+        Raises `LLMExtractionError` if the endpoint is unreachable or the key is invalid.
+        """
+        try:
+            self._client.models.list()
+        except OpenAIError as exc:
+            logger.error("Azure OpenAI readiness check failed: %s", exc)
+            raise LLMExtractionError(str(exc)) from exc
+
     def extract(self, layout: LayoutResult, source_file: str) -> LabReport:
         """Structure one document's DI layout output into a validated `LabReport`.
 
