@@ -33,3 +33,13 @@ def test_analyze_layout_against_real_document_intelligence():
     assert result.pages
     assert result.tables
     assert any(word.confidence > 0 for page in result.pages for word in page.words)
+
+
+@pytest.mark.integration
+def test_ping_against_real_document_intelligence():
+    endpoint = os.environ.get("AZURE_DI_ENDPOINT")
+    api_key = os.environ.get("AZURE_DI_KEY")
+    if not endpoint or not api_key:
+        pytest.skip("AZURE_DI_ENDPOINT / AZURE_DI_KEY not set in .env")
+
+    DIClient(endpoint=endpoint, api_key=api_key).ping()  # raises on failure

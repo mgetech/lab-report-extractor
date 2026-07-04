@@ -122,6 +122,22 @@ def test_extract_raises_when_model_returns_no_parsed_content(mocker):
         client.extract(_layout(), source_file="doc01.pdf")
 
 
+def test_ping_succeeds_when_models_list_reachable(mocker):
+    client, stub_sdk_client = _client_with_stub_parse(mocker)
+
+    client.ping()
+
+    stub_sdk_client.models.list.assert_called_once()
+
+
+def test_ping_raises_llm_extraction_error_on_failure(mocker):
+    client, stub_sdk_client = _client_with_stub_parse(mocker)
+    stub_sdk_client.models.list.side_effect = APIConnectionError(request=mocker.Mock())
+
+    with pytest.raises(LLMExtractionError):
+        client.ping()
+
+
 def test_extract_sends_deployment_and_document_content_to_sdk(mocker):
     client, stub_sdk_client = _client_with_stub_parse(mocker, parsed=_extracted())
 

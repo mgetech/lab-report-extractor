@@ -11,7 +11,10 @@ import logging
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 
-from azure.ai.documentintelligence import DocumentIntelligenceClient
+from azure.ai.documentintelligence import (
+    DocumentIntelligenceAdministrationClient,
+    DocumentIntelligenceClient,
+)
 from azure.ai.documentintelligence.models import AnalyzeResult, DocumentLine, DocumentWord
 from azure.core.credentials import AzureKeyCredential
 from azure.core.exceptions import HttpResponseError
@@ -125,7 +128,22 @@ class DIClient:
     """Thin wrapper over Azure Document Intelligence's `prebuilt-layout` model."""
 
     def __init__(self, endpoint: str, api_key: str) -> None:
-        self._client = DocumentIntelligenceClient(endpoint, AzureKeyCredential(api_key))
+        credential = AzureKeyCredential(api_key)
+        self._client = DocumentIntelligenceClient(endpoint, credential)
+        self._admin_client = DocumentIntelligenceAdministrationClient(endpoint, credential)
+
+    def ping(self) -> None:
+        """Cheap reachability check for `/ready`: fetches resource details rather than
+        analyzing a real document, so it costs no OCR pages.
+
+        Raises `DocumentIntelligenceError` if the endpoint is unreachable or the key is
+        invalid.
+        """
+        try:
+            self._admin_client.get_resource_details()
+        except HttpResponseError as exc:
+            logger.error("Document Intelligence readiness check failed: %s", exc.message)
+            raise DocumentIntelligenceError(str(exc.message)) from exc
 
     def analyze_layout(self, document_bytes: bytes) -> LayoutResult:
         """Run `prebuilt-layout` on raw document bytes (PDF or image).

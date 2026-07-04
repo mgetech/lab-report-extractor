@@ -44,6 +44,38 @@ def test_health_returns_ok(client):
     assert response.json() == {"status": "ok"}
 
 
+def test_ready_returns_200_when_both_azure_services_reachable(client):
+    test_client, fake_di, fake_llm = client
+
+    response = test_client.get("/ready")
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ready"}
+    fake_di.ping.assert_called_once()
+    fake_llm.ping.assert_called_once()
+
+
+def test_ready_returns_503_when_document_intelligence_unreachable(client):
+    test_client, fake_di, fake_llm = client
+    fake_di.ping.side_effect = DocumentIntelligenceError("unauthorized")
+
+    response = test_client.get("/ready")
+
+    assert response.status_code == 503
+    assert "Document Intelligence" in response.json()["detail"]
+    fake_llm.ping.assert_not_called()
+
+
+def test_ready_returns_503_when_azure_openai_unreachable(client):
+    test_client, fake_di, fake_llm = client
+    fake_llm.ping.side_effect = LLMExtractionError("unauthorized")
+
+    response = test_client.get("/ready")
+
+    assert response.status_code == 503
+    assert "Azure OpenAI" in response.json()["detail"]
+
+
 def test_extract_returns_structured_report(client):
     test_client, fake_di, fake_llm = client
     fake_di.analyze_layout.return_value = "fake-layout"

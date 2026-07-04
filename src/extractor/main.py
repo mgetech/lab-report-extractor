@@ -57,8 +57,30 @@ def get_llm_client() -> LLMClient:
 
 @app.get("/health")
 def health() -> dict[str, str]:
-    """Process liveness only, no external calls. `/ready` (Azure reachability) lands Day 2."""
+    """Process liveness only, no external calls -- safe for the Docker smoke test to hit
+    without live Azure keys."""
     return {"status": "ok"}
+
+
+@app.get("/ready")
+def ready(
+    di_client: DIClient = Depends(get_di_client),
+    llm_client: LLMClient = Depends(get_llm_client),
+) -> dict[str, str]:
+    """Azure DI + Azure OpenAI reachability, in addition to `/health`'s process liveness."""
+    try:
+        di_client.ping()
+    except DocumentIntelligenceError as exc:
+        raise HTTPException(
+            status_code=503, detail=f"Document Intelligence unreachable: {exc}"
+        ) from exc
+
+    try:
+        llm_client.ping()
+    except LLMExtractionError as exc:
+        raise HTTPException(status_code=503, detail=f"Azure OpenAI unreachable: {exc}") from exc
+
+    return {"status": "ready"}
 
 
 @app.post("/extract", response_model=LabReport)
