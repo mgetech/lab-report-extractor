@@ -147,3 +147,42 @@ def test_extract_sends_deployment_and_document_content_to_sdk(mocker):
     assert kwargs["model"] == "gpt-5-mini"
     assert kwargs["response_format"] is _ExtractedLabReport
     assert "Hemoglobin 14.2" in kwargs["messages"][1]["content"]
+
+
+def test_default_prompt_variant_is_schema_annotated(mocker):
+    client, stub_sdk_client = _client_with_stub_parse(mocker, parsed=_extracted())
+
+    client.extract(_layout(), source_file="doc01.pdf")
+
+    _, kwargs = stub_sdk_client.chat.completions.parse.call_args
+    assert "Rules:" in kwargs["messages"][0]["content"]
+
+
+def test_terse_prompt_variant_sends_the_terse_system_prompt(mocker):
+    stub_sdk_client = mocker.Mock()
+    message = SimpleNamespace(parsed=_extracted(), refusal=None)
+    stub_sdk_client.chat.completions.parse.return_value = SimpleNamespace(
+        choices=[SimpleNamespace(message=message)]
+    )
+    mocker.patch("llm_client.OpenAI", return_value=stub_sdk_client)
+    client = LLMClient(
+        endpoint="https://example.openai.azure.com/openai/v1",
+        api_key="fake-key",
+        deployment="gpt-5-mini",
+        prompt_variant="terse",
+    )
+
+    client.extract(_layout(), source_file="doc01.pdf")
+
+    _, kwargs = stub_sdk_client.chat.completions.parse.call_args
+    assert "Rules:" not in kwargs["messages"][0]["content"]
+
+
+def test_unknown_prompt_variant_raises_value_error():
+    with pytest.raises(ValueError, match="Unknown prompt_variant"):
+        LLMClient(
+            endpoint="https://example.openai.azure.com/openai/v1",
+            api_key="fake-key",
+            deployment="gpt-5-mini",
+            prompt_variant="bogus",
+        )
