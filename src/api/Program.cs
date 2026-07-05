@@ -13,9 +13,14 @@ builder.Services.AddScoped<LabReportRepository>();
 builder.Services.AddHttpClient<ExtractorClient>(client =>
     client.BaseAddress = new Uri(builder.Configuration["EXTRACTOR_URL"] ?? "http://localhost:8000"));
 
+builder.Services.AddOpenApi();
+
 var app = builder.Build();
 
 _ = InitializeDatabaseAsync(app.Services, app.Logger);
+
+app.MapOpenApi();
+app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "LabReportExtractor.Api v1"));
 
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }))
     .WithName("GetHealth");
