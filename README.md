@@ -9,7 +9,7 @@ Both CI jobs (`python-ci`, `dotnet-ci`) run their suite with coverage on every p
 gate at a **70% floor** — low enough not to block normal work, there to catch regressions.
 
 - **Python (93%)**: the safety-critical logic (`validate.py`, `transform.py`) is at
-  96-100%. See `docs/data-quality-rules.md`.
+  96-100%. See `docs/design.md`.
 - **.NET (89%, generated code excluded)**: round-trips `LabReportRepository` through a real
   Postgres (`Testcontainers.PostgreSql`) to prove the owned-entity/JSONB mapping in
   `LabReportDbContext` works, plus `DbInitializer` and the `/documents` endpoints
