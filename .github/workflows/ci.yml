@@ -54,3 +54,55 @@ jobs:
           /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
           "/p:Exclude=[*]Microsoft.AspNetCore.OpenApi.Generated.*"
           /p:Threshold=70 /p:ThresholdType=line /p:ThresholdStat=total
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write placeholder .env
+        # docker-compose.yml interpolates POSTGRES_* even for `build` (not just `up`); no real
+        # secrets needed, this just keeps compose from warning on unset vars.
+        run: |
+          cat > .env <<'EOF'
+          AZURE_DI_ENDPOINT=https://placeholder.cognitiveservices.azure.com/
+          AZURE_DI_KEY=placeholder
+          AZURE_OPENAI_ENDPOINT=https://placeholder.openai.azure.com/
+          AZURE_OPENAI_API_KEY=placeholder
+          AZURE_OPENAI_DEPLOYMENT=placeholder
+          AZURE_OPENAI_API_VERSION=2024-10-21
+          POSTGRES_HOST=db
+          POSTGRES_PORT=5432
+          POSTGRES_DB=ci_placeholder_db
+          POSTGRES_USER=ci_placeholder_user
+          POSTGRES_PASSWORD=ci_placeholder_password
+          EXTRACTOR_URL=http://extractor:8000
+          EOF
+
+      - name: docker compose build
+        run: docker compose build
+
+      - name: docker compose up (smoke test)
+        # Insurance that the `docker-compose up` + pasted keys actually boots the
+        # stack, not just that it builds. Only checks /health (process up), never /ready
+        # (Azure DI/OpenAI reachability) -- /ready would always fail against the placeholder
+        # keys above, and hitting real Azure here would cost real credits on every push.
+        run: |
+          docker compose up -d
+
+          for service in "extractor:http://localhost:8000/health" "api:http://localhost:5005/health"; do
+            name="${service%%:*}"
+            url="${service#*:}"
+            for _ in $(seq 1 30); do
+              if curl -sf "$url" > /dev/null; then
+                echo "$name healthy"
+                break
+              fi
+              sleep 2
+            done
+            curl -sf "$url"
+          done
+
+      - name: docker compose down
+        if: always()
+        run: docker compose down -v
