@@ -1,4 +1,6 @@
 using LabReportExtractor.Api.Data;
+using LabReportExtractor.Api.Models;
+using LabReportExtractor.Api.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,12 +10,45 @@ builder.Services.AddDbContext<LabReportDbContext>(options => options
     .UseSnakeCaseNamingConvention());
 builder.Services.AddScoped<LabReportRepository>();
 
+builder.Services.AddHttpClient<ExtractorClient>(client =>
+    client.BaseAddress = new Uri(builder.Configuration["EXTRACTOR_URL"] ?? "http://localhost:8000"));
+
 var app = builder.Build();
 
 _ = InitializeDatabaseAsync(app.Services, app.Logger);
 
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }))
     .WithName("GetHealth");
+
+app.MapPost("/documents", async (
+        IFormFile file, ExtractorClient extractor, LabReportRepository repository, CancellationToken cancellationToken) =>
+    {
+        LabReport extracted;
+        try
+        {
+            extracted = await extractor.ExtractAsync(file, cancellationToken);
+        }
+        catch (ExtractorRequestException ex)
+        {
+            return Results.Problem(detail: ex.Message, statusCode: ex.StatusCode);
+        }
+
+        var id = await repository.InsertAsync(extracted, cancellationToken);
+        return Results.Created($"/documents/{id}", extracted with { Id = id });
+    })
+    .WithName("PostDocument")
+    .DisableAntiforgery();
+
+app.MapGet("/documents/{id:long}", async (long id, LabReportRepository repository, CancellationToken cancellationToken) =>
+    {
+        var report = await repository.GetByIdAsync(id, cancellationToken);
+        return report is null ? Results.NotFound() : Results.Ok(report);
+    })
+    .WithName("GetDocument");
+
+app.MapGet("/documents", async (bool? needsReview, LabReportRepository repository, CancellationToken cancellationToken) =>
+        Results.Ok(await repository.ListAsync(needsReview, cancellationToken)))
+    .WithName("ListDocuments");
 
 app.Run();
 
