@@ -14,7 +14,7 @@ from di_client import DIClient
 
 load_dotenv()
 
-SAMPLE_PDF = Path(__file__).parent / "../../sample_data/pdfs/doc01_rows_clean.pdf"
+SAMPLE_PDF = Path(__file__).parent / "../../sample_data/pdfs/doc02_rows_clean.pdf"
 
 
 @pytest.mark.integration

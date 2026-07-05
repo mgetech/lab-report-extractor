@@ -278,12 +278,18 @@ def format_flag(flag: Flag, style: FlagStyle) -> str:
     if style == "letters":
         return "" if flag == Flag.NORMAL else flag.value
     if style == "arrows":
-        if flag in (Flag.HIGH, Flag.CRITICAL_HIGH):
+        if flag == Flag.CRITICAL_HIGH:
+            return "↑↑"
+        if flag == Flag.HIGH:
             return "↑"
-        if flag in (Flag.LOW, Flag.CRITICAL_LOW):
+        if flag == Flag.CRITICAL_LOW:
+            return "↓↓"
+        if flag == Flag.LOW:
             return "↓"
         return ""
     if style == "asterisk":
+        if flag in (Flag.CRITICAL_HIGH, Flag.CRITICAL_LOW):
+            return "**"
         return "" if flag == Flag.NORMAL else "*"
     raise ValueError(style)
 

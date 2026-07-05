@@ -67,7 +67,14 @@ class _ExtractedLabReport(BaseModel):
     diagnoses: list[_ExtractedDiagnosis] = Field(default_factory=list)
 
 
-_SYSTEM_PROMPT = """\
+_TERSE_PROMPT = """\
+You are a medical lab report data extraction assistant. Extract the patient, report, \
+result, and diagnosis fields from the OCR text and tables below onto the given schema. \
+Don't invent values that aren't present in the text. A blank/absent printed flag means \
+the result is NORMAL ("N"), never null. Convert dates to ISO 8601 (YYYY-MM-DD).
+"""
+
+_SCHEMA_ANNOTATED_PROMPT = """\
 You are a medical lab report data extraction assistant. You are given the plain-text \
 content and tables read from a lab report by an OCR/layout engine. Map what you find \
 onto the given schema exactly -- do not invent, infer, or calculate values that are not \
@@ -86,9 +93,47 @@ to "N" in that case; never leave it null just because nothing was printed next t
 - Dates (`report_date`, `collection_date`, `patient.dob`): convert the printed date to ISO \
 8601 (YYYY-MM-DD), regardless of how it's printed on the document (e.g. DD.MM.YYYY or \
 MM/DD/YYYY).
+- A doubled/repeated flag symbol means the CRITICAL variant, not a second instance of the \
+same flag: "**" is critical (HH if the value is high, LL if low), "↑↑" is HH, "↓↓" is LL -- \
+map these to HH/LL, never to a plain H/L.
 - If a field is genuinely absent from the document, leave it null (or omit it from the \
 results/diagnoses list) rather than guessing.
 """
+
+_FEW_SHOT_PROMPT = (
+    _SCHEMA_ANNOTATED_PROMPT
+    + """
+Example:
+
+Document text:
+Patient: Alex Rivera (DOB 04.11.1990, M)  Report Date: 12.06.2026
+Hemoglobin 13.1 g/dL (13.5-17.5)
+Glucose 210 mg/dL (70-100) [H]
+WBC 22.0 x10^9/L (4.0-11.0) [**]
+Diagnosis: Hyperglycemia, recommend follow-up
+
+Correct extraction (illustrating the rules above, not the full schema):
+- patient.dob = "1990-11-04" (DD.MM.YYYY converted to ISO 8601)
+- report_date = "2026-06-12"
+- Hemoglobin: value="13.1", ref_range_raw="13.5-17.5", printed_flag="N" (nothing was \
+printed next to it, which means normal -- not null)
+- Glucose: value="210", ref_range_raw="70-100", printed_flag="H" (printed flag preserved \
+as-is)
+- WBC: value="22.0", ref_range_raw="4.0-11.0", printed_flag="HH" (doubled "**" means \
+critical-high, not a plain "H")
+- diagnoses: ["Hyperglycemia, recommend follow-up"]
+"""
+)
+
+_SYSTEM_PROMPTS: dict[str, str] = {
+    "terse": _TERSE_PROMPT,
+    "schema_annotated": _SCHEMA_ANNOTATED_PROMPT,
+    "few_shot": _FEW_SHOT_PROMPT,
+}
+
+DEFAULT_PROMPT_VARIANT = "schema_annotated"
+"""Current production default, pending the sweep in docs/prompt-engineering.md -- updated
+to the winner once results are in."""
 
 
 def _render_tables(tables: list[Table]) -> str:
@@ -134,7 +179,13 @@ class LLMClient:
     """Thin wrapper over an Azure OpenAI (Foundry) chat deployment: structures DI's
     layout output into a validated `LabReport`."""
 
-    def __init__(self, endpoint: str, api_key: str, deployment: str) -> None:
+    def __init__(
+        self,
+        endpoint: str,
+        api_key: str,
+        deployment: str,
+        prompt_variant: str = DEFAULT_PROMPT_VARIANT,
+    ) -> None:
         # This project's Azure OpenAI resource is called through the newer
         # OpenAI-compatible v1 API surface (endpoint already ends in `/openai/v1`,
         # GA since Aug 2025) -- so the plain `OpenAI` client with `base_url` is
@@ -142,6 +193,13 @@ class LLMClient:
         # older deployment-path routing and 404s against a v1 endpoint.
         self._client = OpenAI(base_url=endpoint, api_key=api_key)
         self._deployment = deployment
+        try:
+            self._system_prompt = _SYSTEM_PROMPTS[prompt_variant]
+        except KeyError:
+            raise ValueError(
+                f"Unknown prompt_variant {prompt_variant!r}; "
+                f"expected one of {sorted(_SYSTEM_PROMPTS)}"
+            ) from None
 
     def ping(self) -> None:
         """Cheap reachability check for `/ready`: lists available models rather than
@@ -165,7 +223,7 @@ class LLMClient:
             completion = self._client.chat.completions.parse(
                 model=self._deployment,
                 messages=[
-                    {"role": "system", "content": _SYSTEM_PROMPT},
+                    {"role": "system", "content": self._system_prompt},
                     {"role": "user", "content": _build_user_prompt(layout)},
                 ],
                 response_format=_ExtractedLabReport,
