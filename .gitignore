@@ -20,6 +20,7 @@ htmlcov/
 bin/
 obj/
 *.user
+TestResults/
 
 # --- data outputs (generated, not source) ---
 # sample_data/pdfs and sample_data/ground_truth ARE committed (synthetic, deterministic,
