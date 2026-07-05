@@ -93,3 +93,6 @@ static async Task InitializeDatabaseAsync(IServiceProvider services, ILogger log
     await using var scope = services.CreateAsyncScope();
     await DbInitializer.InitializeAsync(scope.ServiceProvider.GetRequiredService<LabReportDbContext>(), logger);
 }
+
+/// <summary>Exposed so <c>WebApplicationFactory&lt;Program&gt;</c> can host this app in tests.</summary>
+public partial class Program;

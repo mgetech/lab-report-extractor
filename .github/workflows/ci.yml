@@ -28,7 +28,7 @@ jobs:
         run: ruff format --check .
 
       - name: Test + coverage
-        run: pytest --cov=. --cov-report=term-missing
+        run: pytest --cov=. --cov-report=term-missing --cov-fail-under=70
 
   dotnet-ci:
     runs-on: ubuntu-latest
@@ -49,4 +49,8 @@ jobs:
         run: dotnet format LabReportExtractor.slnx --verify-no-changes
 
       - name: Test + coverage
-        run: dotnet test LabReportExtractor.slnx --no-build --configuration Release --collect:"XPlat Code Coverage"
+        run: >
+          dotnet test LabReportExtractor.slnx --no-build --configuration Release
+          /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
+          "/p:Exclude=[*]Microsoft.AspNetCore.OpenApi.Generated.*"
+          /p:Threshold=70 /p:ThresholdType=line /p:ThresholdStat=total
