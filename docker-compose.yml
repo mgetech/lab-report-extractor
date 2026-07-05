@@ -46,6 +46,22 @@ services:
     networks:
       - lab-network
 
+  ui:
+    build:
+      context: ./src/ui
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      API_URL: http://api:8080
+    depends_on:
+      api:
+        condition: service_started
+    ports:
+      - "8501:8501"
+    networks:
+      - lab-network
+
 networks:
   lab-network:
     driver: bridge
