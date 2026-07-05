@@ -38,6 +38,17 @@ public sealed class ExtractorClient(HttpClient httpClient)
         return report ?? throw new ExtractorRequestException((int)response.StatusCode, "Extractor returned an empty response.");
     }
 
+    /// <summary>Checks that the extractor process is up (its <c>/health</c>, not its own <c>/ready</c> — we only need to know it's reachable, not whether its Azure dependencies are).</summary>
+    /// <exception cref="ExtractorRequestException">The extractor is unreachable or unhealthy.</exception>
+    public async Task PingAsync(CancellationToken cancellationToken = default)
+    {
+        using var response = await httpClient.GetAsync("/health", cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new ExtractorRequestException((int)response.StatusCode, response.ReasonPhrase ?? "Extractor health check failed.");
+        }
+    }
+
     private static async Task<string> ReadErrorDetailAsync(HttpResponseMessage response, CancellationToken cancellationToken)
     {
         try

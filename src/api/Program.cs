@@ -20,6 +20,37 @@ _ = InitializeDatabaseAsync(app.Services, app.Logger);
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }))
     .WithName("GetHealth");
 
+app.MapGet("/ready", async (LabReportDbContext db, ExtractorClient extractor, CancellationToken cancellationToken) =>
+    {
+        var problems = new List<string>();
+
+        try
+        {
+            if (!await db.Database.CanConnectAsync(cancellationToken))
+            {
+                problems.Add("Postgres unreachable.");
+            }
+        }
+        catch (Exception ex)
+        {
+            problems.Add($"Postgres unreachable: {ex.Message}");
+        }
+
+        try
+        {
+            await extractor.PingAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            problems.Add($"Extractor unreachable: {ex.Message}");
+        }
+
+        return problems.Count == 0
+            ? Results.Ok(new { status = "ready" })
+            : Results.Problem(detail: string.Join(" ", problems), statusCode: StatusCodes.Status503ServiceUnavailable);
+    })
+    .WithName("GetReady");
+
 app.MapPost("/documents", async (
         IFormFile file, ExtractorClient extractor, LabReportRepository repository, CancellationToken cancellationToken) =>
     {
