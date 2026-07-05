@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/api/">
+    <Project Path="src/api/LabReportExtractor.Api.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/dotnet/">
+    <Project Path="tests/dotnet/LabReportExtractor.Api.Tests/LabReportExtractor.Api.Tests.csproj" />
+  </Folder>
+</Solution>
