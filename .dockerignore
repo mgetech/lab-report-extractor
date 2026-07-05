@@ -1,0 +1,28 @@
+# --- secrets ---
+.env
+*.env
+!.env.example
+
+# --- git / editor ---
+.git/
+.gitignore
+.idea/
+.vscode/
+*.user
+
+# --- Python ---
+**/__pycache__/
+**/*.py[cod]
+**/.venv/
+**/venv/
+**/.pytest_cache/
+**/.ruff_cache/
+**/.coverage
+
+# --- .NET ---
+**/bin/
+**/obj/
+
+# --- data outputs (generated, not needed in image) ---
+output/
+eval/results/
