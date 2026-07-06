@@ -66,30 +66,11 @@ clear signal for which ones to double-check.
 
 ## Architecture
 
+
 ### Pipeline
 
-```mermaid
-flowchart LR
-    A["Document upload"] --> B["Azure DI<br/>prebuilt-layout"]
-    B --> C["Azure OpenAI<br/>structure to schema"]
-    C --> D["transform.py<br/>normalize"]
-    D --> E["validate.py<br/>confidence routing +<br/>plausibility check"]
-    E -->|high confidence, plausible| F["Auto-accepted"]
-    E -->|low confidence or mismatch| G["needs_review = true"]
-    F --> H[("PostgreSQL")]
-    G --> H
-```
+![Pipeline workflow](lab_report_pipeline_flow.png)
 
-### Service split
-
-```mermaid
-flowchart LR
-    UI["Streamlit UI"] -->|upload| API["C# API"]
-    API -->|POST /extract| EXT["Python Extractor<br/>FastAPI"]
-    EXT --> DI["Azure Document Intelligence<br/>prebuilt-layout"]
-    EXT --> AOAI["Azure OpenAI<br/>via Foundry"]
-    API --> DB[("PostgreSQL")]
-```
 
 - **Python extraction engine** (`src/extractor/`, FastAPI) — stateless. Input: a document.
   Output: a validated, structured JSON record with per-field confidences. Calls Azure DI +

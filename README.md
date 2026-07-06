@@ -1,5 +1,6 @@
 # Lab Report Extractor 
 
+[![CI](https://github.com/mgetech/lab-report-extractor/actions/workflows/ci.yml/badge.svg)](https://github.com/mgetech/lab-report-extractor/actions/workflows/ci.yml)
 ![Python coverage](https://img.shields.io/badge/python%20coverage-93%25-brightgreen)
 ![.NET coverage](https://img.shields.io/badge/.NET%20coverage-89%25-brightgreen)
 
@@ -44,16 +45,7 @@ see [`docs/design.md`](docs/design.md#compliance--security-posture).
 
 ## Flow
 
-```mermaid
-flowchart LR
-    UI["Streamlit UI"] -->|upload| API["C# API<br/>(system of record)"]
-    API -->|POST /extract| EXT["Python Extractor"]
-    EXT --> DI["Azure Document<br/>Intelligence"]
-    EXT --> AOAI["Azure OpenAI"]
-    EXT -->|validated JSON| API
-    API --> DB[("PostgreSQL")]
-    API -->|read| UI
-```
+![Pipeline workflow](docs/lab_report_pipeline_flow.png)
 
 Document → Azure DI (OCR/layout) → Azure OpenAI (structure to schema) → transform/validate
 (confidence routing + plausibility check) → persisted to Postgres by the C# API → reviewed
@@ -69,6 +61,39 @@ in Streamlit. Full architecture and data model: [`docs/design.md`](docs/design.m
    - Python extractor (docs): http://localhost:8000/docs
 
 No local Python/.NET/Postgres install needed — everything runs in containers.
+
+## Optional: standalone scripts
+
+Outside the Docker stack, a few scripts are useful for regenerating sample data or running
+the pipeline/eval directly. Run them with the extractor's venv
+(`src/extractor/.venv/Scripts/python.exe` on Windows, `src/extractor/.venv/bin/python`
+elsewhere), since they import `schema.py`/`transform.py` from there:
+
+- **`sample_data/generate.py`** — regenerates the 9 synthetic sample PDFs + matching
+  ground-truth JSON (deterministic; re-running overwrites with identical bytes). Needs
+  `pip install -r sample_data/requirements.txt` first, no Azure keys.
+  ```
+  python sample_data/generate.py
+  ```
+- **`src/extractor/batch.py`** — runs the full DI → LLM → transform → validate pipeline over
+  a folder of documents; writes one JSON per doc plus a combined `batch_results.parquet`,
+  logging and skipping any that fail. Needs a populated `.env`.
+  ```
+  python src/extractor/batch.py sample_data/pdfs --output-dir output/batch
+  ```
+- **`eval/evaluate.py`** — scores a folder of extracted JSON against
+  `sample_data/ground_truth/`, per field and per layout. No Azure calls — just diffs JSON
+  already on disk.
+  ```
+  python eval/evaluate.py --extracted-dir output/batch
+  ```
+- **`eval/run_prompt_sweep.py`** — runs all three prompt variants (`terse` /
+  `schema_annotated` / `few_shot`) over every sample doc and scores each; see
+  [`docs/evaluation.md`](docs/evaluation.md#prompt-variant-comparison) for the results. Needs
+  a populated `.env`.
+  ```
+  python eval/run_prompt_sweep.py
+  ```
 
 ## Testing & coverage
 
