@@ -1,0 +1,17 @@
+root = true
+
+[*.cs]
+
+# StyleCop.Analyzers: keep spacing/brace/naming rules active, but turn off rules that
+# fight this repo's existing style (top-level usings, omitted `this.`, underscore-prefixed
+# private fields) or that are legacy conventions most modern .NET repos don't enforce
+# (mandatory XML doc comments/file headers, strict member ordering, one-type-per-file).
+dotnet_analyzer_diagnostic.category-StyleCop.CSharp.DocumentationRules.severity = none
+dotnet_diagnostic.SA0001.severity = none  # XML doc analysis disabled (no GenerateDocumentationFile) — expected
+dotnet_diagnostic.SA1101.severity = none  # prefix local calls with `this.`
+dotnet_diagnostic.SA1200.severity = none  # usings must be inside namespace
+dotnet_diagnostic.SA1202.severity = none  # public members before private members
+dotnet_diagnostic.SA1204.severity = none  # static members before instance members
+dotnet_diagnostic.SA1309.severity = none  # fields must not start with underscore
+dotnet_diagnostic.SA1312.severity = none  # flags `_` discards as badly-cased variables
+dotnet_diagnostic.SA1402.severity = none  # one type per file

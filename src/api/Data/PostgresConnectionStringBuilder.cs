@@ -4,7 +4,7 @@ namespace LabReportExtractor.Api.Data;
 
 /// <summary>
 /// Builds the Postgres connection string from <c>ConnectionStrings:DefaultConnection</c> if set,
-/// else composes it from the individual <c>POSTGRES_*</c> environment variables (see CLAUDE.md).
+/// else composes it from the individual <c>POSTGRES_*</c> environment variables.
 /// </summary>
 public static class PostgresConnectionStringBuilder
 {
