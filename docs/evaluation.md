@@ -173,3 +173,34 @@ extra machinery isn't earning its keep:
 
 `schema_annotated` is already `DEFAULT_PROMPT_VARIANT` in `llm_client.py`, so the winner
 is already wired in; no code change was needed.
+
+## Limitations
+
+This eval is sized to distinguish prompt variants and catch regressions during
+development, not to certify production accuracy. Worth stating plainly:
+
+- **n is small.** 9 documents across 6 layouts means several per-layout cells are a single
+  document (1/1 = 100%), and even the largest cells are 12 result rows. A single miss
+  swings a cell from 100% to 0%, and a single hit swings it the other way — the headline
+  percentages are far less statistically stable than the tidy table makes them look.
+- **All documents are synthetic.** `sample_data/generate.py` produces clean, programmatically
+  authored layouts. Real-world lab reports carry noise this corpus doesn't model: multi-page
+  reports, mixed fonts, low-quality faxes/photos, handwritten annotations, lab-specific
+  templates never seen here, and OCR failure modes beyond the one doubled-glyph case found
+  in doc05.
+- **Ground truth is authored, not independently adjudicated.** Because `generate.py` emits
+  the PDF and its ground truth from the same source values, there's no inter-rater step and
+  no chance of ground truth itself being ambiguous or wrong — which is convenient for this
+  eval but doesn't test whether the schema/tolerance rules agree with a human reviewer on
+  a real, messier document.
+- **Layout coverage is intentionally narrow.** Six layouts were chosen to vary specific axes
+  (table structure, flag notation, scan quality) for controlled comparison, not to sample
+  the diversity of formats real labs use.
+
+A production-scale eval would need on the order of tens of documents per layout (enough
+for a miss to move a percentage by a few points, not fifty), a corpus of real de-identified
+reports across multiple labs and scan qualities, and ground truth independently adjudicated
+by a second rater to catch cases where the "correct" answer is itself debatable. None of
+that invalidates the comparisons above — the harness and methodology carry over unchanged —
+but the current n is right-sized for picking a prompt variant during development, not for
+claiming a production accuracy number.
