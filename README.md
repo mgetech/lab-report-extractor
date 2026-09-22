@@ -29,6 +29,15 @@ see [`docs/design.md`](docs/design.md#compliance--security-posture).
   plus a prompt-variant comparison that picked the production prompt. See
   [`docs/evaluation.md`](docs/evaluation.md).
 
+## Flow
+
+![Pipeline workflow](docs/lab_report_pipeline_flow.png)
+
+Document → Azure DI (OCR/layout) → Azure OpenAI (structure to schema) → transform/validate
+(confidence routing + plausibility check) → persisted to Postgres by the C# API → reviewed
+in Streamlit. Full architecture and data model: [`docs/design.md`](docs/design.md).
+
+
 ## Tech stack
 
 | Layer | Choice | Why |
@@ -42,14 +51,6 @@ see [`docs/design.md`](docs/design.md#compliance--security-posture).
 | UI | Streamlit | Fast to stand up a reviewer-facing upload + review-queue screen without a separate frontend build |
 | Containerization | Docker + docker-compose | One command (`docker compose up`) reproduces the whole stack for a reviewer with no local installs |
 | CI/CD | GitHub Actions | Lint, test + coverage gate (70%), and a Docker build/smoke-test job, all free-tier, no secrets required |
-
-## Flow
-
-![Pipeline workflow](docs/lab_report_pipeline_flow.png)
-
-Document → Azure DI (OCR/layout) → Azure OpenAI (structure to schema) → transform/validate
-(confidence routing + plausibility check) → persisted to Postgres by the C# API → reviewed
-in Streamlit. Full architecture and data model: [`docs/design.md`](docs/design.md).
 
 ## Running it
 
