@@ -54,7 +54,8 @@ in Streamlit. Full architecture and data model: [`docs/design.md`](docs/design.m
 
 ## Running it
 
-1. Copy `.env.example` to `.env` and paste in your keys and secrets.
+1. Copy `.env.example` to `.env` and paste in your keys and secrets. (Demo Azure OpenAI/DI
+   **API keys available on request** — if you'd rather not deploy your own.)
 2. `docker compose up`
 4. Open:
    - Streamlit UI: http://localhost:8501
